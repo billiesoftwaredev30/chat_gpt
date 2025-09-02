@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Niche Manager</title>
+<style>
+  body {font-family: Arial, sans-serif; margin: 40px;}
+  form {margin-bottom: 20px;}
+  label {display: block; margin-top: 10px;}
+  input[type="text"], textarea {width: 100%; padding: 8px;}
+  ul {list-style: none; padding: 0;}
+  li {margin-bottom: 10px;}
+  button {margin-left: 5px;}
+</style>
+</head>
+<body>
+<h1>Upload and Edit Niche</h1>
+<form id="nicheForm">
+  <label for="name">Niche Name</label>
+  <input type="text" id="name" required>
+  <label for="description">Description</label>
+  <textarea id="description" rows="3"></textarea>
+  <label for="image">Image</label>
+  <input type="file" id="image" accept="image/*">
+  <button type="submit">Save Niche</button>
+</form>
+
+<h2>Existing Niches</h2>
+<ul id="nicheList"></ul>
+
+<script>
+let niches = [];
+let editIndex = null;
+
+const form = document.getElementById('nicheForm');
+const list = document.getElementById('nicheList');
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const imageInput = document.getElementById('image');
+  const imageName = imageInput.files[0] ? imageInput.files[0].name : '';
+
+  const data = { name, description, imageName };
+  if (editIndex !== null) {
+    niches[editIndex] = data;
+    editIndex = null;
+  } else {
+    niches.push(data);
+  }
+
+  form.reset();
+  render();
+});
+
+function render() {
+  list.innerHTML = '';
+  niches.forEach((niche, idx) => {
+    const li = document.createElement('li');
+    li.textContent = `${niche.name} - ${niche.description} ${niche.imageName ? '(' + niche.imageName + ')' : ''}`;
+
+    const editButton = document.createElement('button');
+    editButton.textContent = 'Edit';
+    editButton.onclick = () => {
+      document.getElementById('name').value = niche.name;
+      document.getElementById('description').value = niche.description;
+      editIndex = idx;
+    };
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.onclick = () => {
+      niches.splice(idx, 1);
+      render();
+    };
+
+    li.appendChild(editButton);
+    li.appendChild(deleteButton);
+    list.appendChild(li);
+  });
+}
+</script>
+</body>
+</html>
